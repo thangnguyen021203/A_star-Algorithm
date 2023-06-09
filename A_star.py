@@ -12,11 +12,8 @@ class Graph():
 
     #Choose a node in open_list with the least f(x) = g(x) + h(x) to expand
     def Pick_to_Move(self, g, h, open_list, close_list, path):
-        if len(open_list) == 0:
-            print("Fault!")
-            return
         min = h[open_list[0]] + g[open_list[0]]
-        min_vertice = 0
+        min_vertice = open_list[0]
         for i in open_list:
             if min > h[i] + g[i]:
                 min = h[i] + g[i]
@@ -26,33 +23,40 @@ class Graph():
         path.append(min_vertice)
         return min_vertice
         
-    def print(self, source, destination, path):
+    def cout(self, source, destination, path):
         print("Path from " + str(source) + " to " + str(destination) + ":")
-        for i in range (path):
+        for i in range (len(path)):
             print("Step " + str(i) + ": " + str(path[i]))
     
     def A_Star(self, source, destination):
         
         self.heuristic(destination, self.h)
         open_list = [source]
-        path = [source]
+        path = []
         close_list = []
         g = [0] * self.V
         
-        u = self.Pick_to_Move(g, self.h, open_list, close_list, path)
+        while True:
+            
+            if len(open_list) == 0:
+                print("Fault!")
+                return
+            
+            u = self.Pick_to_Move(g, self.h, open_list, close_list, path)
+            
+            for  i in range (self.V):
+                if self.adjacent[u][i] > 0  and close_list.count(i) == 0:
+                    if (g[i] > g[u] + self.adjacent[u][i]) or (g[i] == 0):
+                        g[i] = g[u] + self.adjacent[u][i]
+                    if open_list.count(i) == 0:
+                        open_list.append(i)
+                        if i == destination:
+                            path.append(i)
+                            open_list.clear
+                            close_list.clear
+                            self.cout(source,destination,path)
+                            return
         
-        for  i in range (self.V):
-            if self.adjacent[u][i] > 0 and open_list.count(i) == 0 and close_list.count(i) == 0:
-                if g[i] > g[u] + self.adjacent[u][i]:
-                    g[i] = g[u] + self.adjacent[u][i]
-                open_list.append(i)
-                if i == destination:
-                    path.append(i)
-                    open_list.clear
-                    close_list.clear
-                    return
-        print(source, destination, path)
-
 g = Graph(6)
 g.adjacent = [[0,4,0,2,0,0],
               [4,0,5,0,0,0],
